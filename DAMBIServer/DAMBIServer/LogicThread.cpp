@@ -1,7 +1,7 @@
 #include "extern.h"
 #include "stdafx.h"
 
-void Logicthread() {
+void LogicThread() {
 	while (true) {
 	
 		if (!LogicQueue->empty())

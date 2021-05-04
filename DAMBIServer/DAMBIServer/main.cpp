@@ -1,14 +1,48 @@
 #include "extern.h"
 #include "stdafx.h"
 #include "threads.h"
+#include "ServerObject.h"
 
+void Init()
+{
+	pServerObject = new ServerObject;
+	WSADATA WsaData;
+	WSAStartup(MAKEWORD(2, 2), &WsaData);
+	
+	if (pServerObject->CreateSocket("127.0.0.1", 3587))
+	{
+		std::cout << "Create Server Socket Error" << std::endl;
+		return;
+	}
+	pServerObject->CreateIocpPort();
+	
+	
+}
 void InitQueue() 
 {
 	LogicQueue =  new std::queue<int>;
 }
+
 void InitThread()
 {
-	std::thread* Logic = new std::thread(Logicthread);
+	//Create LogicThread
+	std::thread* Logic = new std::thread(LogicThread);
+
+	
+
+	//Create AcceptThread
+	std::thread* Accpet = new std::thread(AcceptThread, pServerObject->GetSocket());
+
+	//Create WorkerThread
+	SYSTEM_INFO sysinfo;
+	GetSystemInfo(&sysinfo);
+
+	std::vector<HANDLE> WorkerThreadList;
+	std::thread* Worker;
+	for (int i = 0; i < sysinfo.dwNumberOfProcessors; i++)
+	{
+		Worker = new std::thread(WorkerThread, pServerObject->GetIocpPort());
+	}
 
 }
 int main()
@@ -20,8 +54,14 @@ int main()
 	todo : init 함수 만들고 로그 작성하게끔 해주자. 콘솔로보면 눈알 아프니
 	
 	*/
+	Init();
 	InitQueue();
 	InitThread();
+	/*
+
+	todo : main이 너무 더럽다. main은 스레드 관리만 하기에도 바쁜데. 너무 복잡해지면 생각 해보자
+
+	*/
 
 	while (true)
 	{
