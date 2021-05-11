@@ -9,7 +9,7 @@ void Init()
 	WSADATA WsaData;
 	WSAStartup(MAKEWORD(2, 2), &WsaData);
 	
-	if (pServerObject->CreateSocket("127.0.0.1", 3587))
+	if (!pServerObject->CreateSocket("127.0.0.1", 3587))
 	{
 		std::cout << "Create Server Socket Error" << std::endl;
 		return;
@@ -21,15 +21,15 @@ void Init()
 void InitQueue() 
 {
 	LogicQueue =  new std::queue<int>;
+	LogQueue = new std::queue<char*>;
 }
 
 void InitThread()
 {
+	//Create LogThread
+	std::thread* Log = new std::thread(LogThread);
 	//Create LogicThread
 	std::thread* Logic = new std::thread(LogicThread);
-
-	
-
 	//Create AcceptThread
 	std::thread* Accpet = new std::thread(AcceptThread, pServerObject->GetSocket());
 
@@ -45,15 +45,16 @@ void InitThread()
 	}
 
 }
+
 int main()
 {
-	std::cout << "Server Start!" << std::endl;
-
+	
 	/*
 	
 	todo : init 함수 만들고 로그 작성하게끔 해주자. 콘솔로보면 눈알 아프니
 	
 	*/
+
 	Init();
 	InitQueue();
 	InitThread();
@@ -62,7 +63,9 @@ int main()
 	todo : main이 너무 더럽다. main은 스레드 관리만 하기에도 바쁜데. 너무 복잡해지면 생각 해보자
 
 	*/
-
+	//LogQueue->push(msg);
+	//logger.writeLog(__FUNCTION__, __LINE__, LOG_LEVEL_FATAL, "sdsd");
+	
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
