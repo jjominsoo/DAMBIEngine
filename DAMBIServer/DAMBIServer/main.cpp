@@ -27,11 +27,10 @@ void InitThread()
 {
 	//Create LogicThread
 	std::thread* Logic = new std::thread(LogicThread);
-
-	
-
 	//Create AcceptThread
 	std::thread* Accpet = new std::thread(AcceptThread, pServerObject->GetSocket());
+	//Create LogThread
+	std::thread* Log = new std::thread(LogThread);
 
 	//Create WorkerThread
 	SYSTEM_INFO sysinfo;
@@ -47,7 +46,8 @@ void InitThread()
 }
 int main()
 {
-	std::cout << "Server Start!" << std::endl;
+	char msg[] = "Server Start!";
+	
 
 	/*
 	
@@ -62,6 +62,7 @@ int main()
 	todo : main이 너무 더럽다. main은 스레드 관리만 하기에도 바쁜데. 너무 복잡해지면 생각 해보자
 
 	*/
+	LogQueue->push(msg);
 
 	while (true)
 	{
