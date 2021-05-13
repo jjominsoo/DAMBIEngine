@@ -1,12 +1,8 @@
 #pragma once
 #include <iomanip>
-#include <iostream>
 #include <fstream>
-#include <cstdarg>
 #include <ctime>
 #include <sstream>
-#include <cstring>
-#include <cstdio>
 #include <mutex>
 
 class Logger {

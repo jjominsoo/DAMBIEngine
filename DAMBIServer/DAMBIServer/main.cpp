@@ -3,6 +3,10 @@
 #include "threads.h"
 #include "ServerObject.h"
 
+std::thread* Logic;
+std::thread* Accept;
+std::thread* Log;
+
 void Init()
 {
 	pServerObject = new ServerObject;
@@ -27,12 +31,12 @@ void InitQueue()
 void InitThread()
 {
 	//Create LogicThread
-	std::thread* Logic = new std::thread(LogicThread);
+	//Logic = new std::thread(LogicThread);
 	//Create AcceptThread
-	std::thread* Accpet = new std::thread(AcceptThread, pServerObject->GetSocket());
+	//Accept = new std::thread(AcceptThread, pServerObject->GetSocket());
 	//Create LogThread
-	std::thread* Log = new std::thread(LogThread);
-
+	Log = new std::thread(LogThread);
+	
 	//Create WorkerThread
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
@@ -52,14 +56,25 @@ int main()
 	InitThread();
 
 	LOG_INFO("Server Start!");
+	int eventListener = 0;
 
 	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		// todo : thread가 다 끝났을때 프로그램이 종료되게 해주는것도 포함하고, ctrl + c 눌렀을때 종료하는 것도 해주자.
-		// 당연히 ctrl + c 했을때 보내던거는 마저 보내고 데이터 처리하는 거는 처리할 꺼 다 처리하고 종료 시켜야 겠지? 타이밍 중요
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		eventListener = _getch();
+		if (eventListener == 3)
+		{
+			ThreadEnd = 1;
+			break;
+		}
 	}
 
 	LOG_INFO("Server End!");
+	LOG_INFO("Bye Bye");
+
+	Accept->join();
+	Logic->join();
+	Log->join();
+	
 	return 0;
 }

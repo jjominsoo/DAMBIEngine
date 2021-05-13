@@ -1,9 +1,12 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <conio.h>
 #include <string>
 #include <WinSock2.h>
 #include "Logger.h"
+
+static int ThreadEnd = 0;
 
 extern Logger logger;
 #define LOG_LEVEL_FATAL 10
