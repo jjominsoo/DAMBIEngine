@@ -21,6 +21,7 @@ void Init()
 void InitQueue() 
 {
 	LogicQueue =  new std::queue<int>;
+	LogQueue = new std::queue<char*>;
 }
 
 void InitThread()
@@ -46,23 +47,11 @@ void InitThread()
 }
 int main()
 {
-	char msg[] = "Server Start!";
-	
-
-	/*
-	
-	todo : init 함수 만들고 로그 작성하게끔 해주자. 콘솔로보면 눈알 아프니
-	
-	*/
 	Init();
 	InitQueue();
 	InitThread();
-	/*
 
-	todo : main이 너무 더럽다. main은 스레드 관리만 하기에도 바쁜데. 너무 복잡해지면 생각 해보자
-
-	*/
-	LogQueue->push(msg);
+	LOG_INFO("Server Start!");
 
 	while (true)
 	{
@@ -71,6 +60,6 @@ int main()
 		// 당연히 ctrl + c 했을때 보내던거는 마저 보내고 데이터 처리하는 거는 처리할 꺼 다 처리하고 종료 시켜야 겠지? 타이밍 중요
 	}
 
-	std::cout << "Server Stop!" << std::endl;
+	LOG_INFO("Server End!");
 	return 0;
 }
