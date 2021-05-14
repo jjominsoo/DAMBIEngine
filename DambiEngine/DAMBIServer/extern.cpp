@@ -2,6 +2,6 @@
 #include "Logger.h"
 
 std::queue<int>* LogicQueue;
-std::queue<char*>* LogQueue;
 ServerObject* pServerObject;
-Logger logger;
+MainConfig* pMainConfig;
+Logger Log;

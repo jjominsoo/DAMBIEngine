@@ -1,10 +1,22 @@
-#include "stdafx.h"
-#include "extern.h"
+#include <queue>
+#include "Logger.h"
+#include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
+#include <mutex>
+#include <fstream>
+#include <queue>
+#include "extern.h"
 
 Logger::Logger()
 {
     this->logLevel = LOG_LEVEL_ERROR;
+    std::ofstream out("Log.txt");
+    filestream = new std::ofstream;
+    filestream->open("Log.txt");
+   // filestream = &out;
 }
 Logger::Logger(int level)
 {
@@ -39,9 +51,24 @@ std::string Logger::getTimestamp()
     result = result + oss.str();
     return result;
 }
-void Logger::writeLog(const char* funcName, int line, int lv, const char* str, ...)
+bool Logger::isLogEmpty()
 {
-
+    return LogQueue.empty();
+}
+void Logger::LogWrite()
+{
+    mtx.lock();
+    if (!LogQueue.empty())
+    {
+        char* msg = LogQueue.front();
+        LogQueue.pop();
+        filestream->write(msg,strlen(msg));
+        free(msg);
+    }
+    mtx.unlock();
+}
+void Logger::LogPush(const char* funcName, int line, int lv, const char* str, ...)
+{
     char* result = NULL;
     char level[10];
     switch (lv)
@@ -57,7 +84,7 @@ void Logger::writeLog(const char* funcName, int line, int lv, const char* str, .
     result = (char*)malloc(sizeof(char) * (21 + strlen(funcName) + strlen(str) + 30));
     sprintf(result, "%s %s [%s:%d] : %s", level, getTimestamp().c_str(), funcName, line, str);
     mtx.lock();
-    LogQueue->push(result);
+    LogQueue.push(result);
     mtx.unlock();
     return;
 }

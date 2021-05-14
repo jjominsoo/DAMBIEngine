@@ -1,10 +1,10 @@
-#include "extern.h"
 #include "stdafx.h"
+#include "extern.h"
 #include "ClientObject.h"
+#include "MainConfig.h"
 
 void AcceptThread(SOCKET ServerSocket) {
-	while (true) {
-
+	while (!pMainConfig->getThreadEnd()) {
 		ClientObject* cObject = NULL;
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -26,7 +26,7 @@ void AcceptThread(SOCKET ServerSocket) {
 		cObject->SetClientSocket(Socket);
 		cObject->SetClientInfo(strClientAddr, ClientPort);
 		cObject->SetRecvStatus();
-		
+	
 	}
 }
 
