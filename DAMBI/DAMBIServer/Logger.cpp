@@ -1,24 +1,33 @@
-#include "stdafx.h"
-#include "extern.h"
+#include <queue>
+#include "Logger.h"
+#include <iostream>
 #include <fstream>
-//#include "Logger.h"
-
-//로그 레벨 객체화용, 합쳐야됨
+#include <iomanip>
+#include <ctime>
+#include <sstream>
+#include <mutex>
+#include <fstream>
+#include <queue>
+#include "extern.h"
 
 Logger::Logger()
 {
     this->logLevel = LOG_LEVEL_ERROR;
+    std::ofstream out("Log.txt");
+    filestream = new std::ofstream;
+    filestream->open("Log.txt");
+   // filestream = &out;
 }
 Logger::Logger(int level)
 {
     this->logLevel = level;
 }
-string Logger::getTimestamp()
+std::string Logger::getTimestamp()
 {
-    string result;
+    std::string result;
     time_t currentSec = time(NULL);
     tm* t = localtime(&currentSec);
-    ostringstream oss;
+    std::ostringstream oss;
     switch (t->tm_mon)
     {
     case(0): result = "Jan"; break;
@@ -35,16 +44,31 @@ string Logger::getTimestamp()
     case(11): result = "Dec"; break;
     }
     oss.clear();
-    oss << " " << setfill('0') << setw(2) << t->tm_mday << " " << t->tm_year + 1900;
-    oss << " " << setfill('0') << setw(2) << t->tm_hour;
-    oss << ":" << setfill('0') << setw(2) << t->tm_min;
-    oss << ":" << setfill('0') << setw(2) << t->tm_sec << '\0';
+    oss << " " << std::setfill('0') << std::setw(2) << t->tm_mday << " " << t->tm_year + 1900;
+    oss << " " << std::setfill('0') << std::setw(2) << t->tm_hour;
+    oss << ":" << std::setfill('0') << std::setw(2) << t->tm_min;
+    oss << ":" << std::setfill('0') << std::setw(2) << t->tm_sec << '\0';
     result = result + oss.str();
     return result;
 }
-void Logger::writeLog(const char* funcName, int line, int lv, const char* str, ...)
+bool Logger::isLogEmpty()
 {
-   
+    return LogQueue.empty();
+}
+void Logger::LogWrite()
+{
+    mtx.lock();
+    if (!LogQueue.empty())
+    {
+        char* msg = LogQueue.front();
+        LogQueue.pop();
+        filestream->write(msg,strlen(msg));
+        free(msg);
+    }
+    mtx.unlock();
+}
+void Logger::LogPush(const char* funcName, int line, int lv, const char* str, ...)
+{
     char* result = NULL;
     char level[10];
     switch (lv)
@@ -60,17 +84,7 @@ void Logger::writeLog(const char* funcName, int line, int lv, const char* str, .
     result = (char*)malloc(sizeof(char) * (21 + strlen(funcName) + strlen(str) + 30));
     sprintf(result, "%s %s [%s:%d] : %s", level, getTimestamp().c_str(), funcName, line, str);
     mtx.lock();
-    LogQueue->push(result);
+    LogQueue.push(result);
     mtx.unlock();
-    /*
-    if (result != NULL)
-    {
-        free(result);
-    }
-    if (fp != NULL)
-    {
-        fclose(fp);
-    }
-    */
     return;
 }
