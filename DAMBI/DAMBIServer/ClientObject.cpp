@@ -4,6 +4,8 @@
 #include "ServerObject.h"
 ClientObject::ClientObject()
 {
+	memset(&RecvBuffer.m_wsaOver, 0, sizeof(WSAOVERLAPPED));
+	pRecvBuffer = new BYTE[G_MAX_NETWORK_LENGTH];
 }
 
 ClientObject::~ClientObject()
@@ -32,10 +34,18 @@ void ClientObject::SetRecvStatus()
 	// register IOCP Port
 	if (CreateIoCompletionPort((HANDLE)Socket, pServerObject->GetIocpPort(), (ULONG_PTR)this, 0) == NULL)
 	{
-		std::cout << "CreateIoCompletionPort Fail" << WSAGetLastError() << std::endl;
+		std::cout << "CreateIoCompletionPort Fail " << WSAGetLastError() << std::endl;
 		return;
 	}
 	DWORD dwBytes = 0, dwFlags = 0;
-	
+
+
+	if (WSARecv(Socket, GetWsaBuf(pRecvBuffer, MAX_BUF_SIZE), 1, &dwBytes, &dwFlags, &RecvBuffer.m_wsaOver, NULL) == SOCKET_ERROR) {
+		if (WSAGetLastError() != ERROR_IO_PENDING) 
+		{
+			std::cout << "WSARecv Fail " << WSAGetLastError() << std::endl;
+			return;
+		}
+	}
 }
 

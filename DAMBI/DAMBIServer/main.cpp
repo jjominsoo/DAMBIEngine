@@ -44,7 +44,7 @@ void InitThread()
 	GetSystemInfo(&sysinfo);
 
 	std::thread* Worker;
-	for (int i = 0; i < sysinfo.dwNumberOfProcessors; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		Worker = new std::thread(WorkerThread, pServerObject->GetIocpPort());
 	}
@@ -57,6 +57,17 @@ BOOL WINAPI CtrlHandler(DWORD signal) {
 		LOG_INFO("Server End!");
 		LOG_INFO("Bye Bye");
 		pMainConfig->setThreadEnd();
+
+		// todo гр ╟м 
+		SOCKET ttt = pServerObject->GetSocket();
+
+		LINGER lingerStruct = { 1, 0 };
+		setsockopt(ttt, SOL_SOCKET, SO_LINGER, (char*)&lingerStruct, sizeof(lingerStruct));
+
+		shutdown(ttt, SD_BOTH);
+		closesocket(ttt);
+
+		ttt = INVALID_SOCKET;
 	}
 	return TRUE;
 }
