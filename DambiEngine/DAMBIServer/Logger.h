@@ -14,7 +14,7 @@ private:
     std::queue<char*> LogQueue;
     std::string getTimestamp();
     std::mutex mtx;
-    std::ofstream *filestream;
+    std::ofstream* filestream;
    
 public:
     Logger();

@@ -31,10 +31,10 @@ void InitThread()
 	//Create LogicThread
 	std::thread* pthread;
 	pthread = new std::thread(LogicThread);
-	pMainConfig->ThreadList.push_back(pthread);
+	//pMainConfig->ThreadList.push_back(pthread);
 	//Create AcceptThread
 	pthread = new std::thread(AcceptThread, pServerObject->GetSocket());
-	pMainConfig->ThreadList.push_back(pthread);
+	//pMainConfig->ThreadList.push_back(pthread);
 	//Create LogThread
 	pthread = new std::thread(LogThread);
 	pMainConfig->ThreadList.push_back(pthread);

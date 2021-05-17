@@ -1,3 +1,4 @@
+#include <fstream>
 #include <queue>
 #include "Logger.h"
 #include <iostream>
@@ -6,9 +7,9 @@
 #include <ctime>
 #include <sstream>
 #include <mutex>
-#include <fstream>
 #include <queue>
 #include "extern.h"
+
 
 Logger::Logger()
 {
@@ -16,7 +17,6 @@ Logger::Logger()
     std::ofstream out("Log.txt");
     filestream = new std::ofstream;
     filestream->open("Log.txt");
-   // filestream = &out;
 }
 Logger::Logger(int level)
 {
@@ -60,10 +60,16 @@ void Logger::LogWrite()
     mtx.lock();
     if (!LogQueue.empty())
     {
-        char* msg = LogQueue.front();
+        std::string nxtLine = "\n";
+        std::string msg = LogQueue.front()+nxtLine;
+        const char* fileMsg = msg.c_str();
         LogQueue.pop();
-        filestream->write(msg,strlen(msg));
-        free(msg);
+        filestream->write(fileMsg,strlen(fileMsg));
+        /*std::vector<char> writable(msg.begin(), msg.end());
+        writable.push_back('\0');
+        char* fileMsg = &writable[0];
+        filestream->write(fileMsg, strlen(fileMsg));
+        free(fileMsg);*/
     }
     mtx.unlock();
 }
